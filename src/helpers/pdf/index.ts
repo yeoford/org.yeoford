@@ -7,7 +7,9 @@ import type {
   TextItem,
   TextMarkedContent,
 } from 'pdfjs-dist/types/src/display/api';
-import Canvas from '@napi-rs/canvas';
+import { Canvas, createCanvas } from '@napi-rs/canvas';
+import { parseMonthYear } from '../date';
+import { safeParseInt } from '../number';
 
 // Set up Node.js environment for PDF.js
 const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
@@ -21,6 +23,13 @@ type Rect = {
   y: number;
   width: number;
   height: number;
+};
+
+const COVER_IMAGE_RECT = {
+  x: 60,
+  y: 333,
+  width: 1068,
+  height: 1201,
 };
 
 export const scanNewsletters = async () => {
@@ -73,6 +82,11 @@ export const processNewsletter = async (filePath: string) => {
   const description = await getTextInRect(firstPage, descriptionRect);
   const issueText = await getTextInRect(firstPage, issueRect);
 
+  const date = parseMonthYear(dateText);
+  const issueNumber = issueTextToIssueNumber(issueText);
+
+  const coverImageFileName = `cover.${issueNumber}.${date?.getMonth()}.${date?.getFullYear()}.jpg`;
+
   // log.debug('dateText', dateText);
   // log.debug('description', description);
   // log.debug('issueText', issueText);
@@ -80,7 +94,10 @@ export const processNewsletter = async (filePath: string) => {
   const imageBuffer = await renderPageToImage(firstPage);
 
   // save the image buffer to a file
-  await Bun.write(path.resolve(NEWSLETTERS_DIR, 'test.jpg'), imageBuffer);
+  await Bun.write(
+    path.resolve(NEWSLETTERS_DIR, coverImageFileName),
+    imageBuffer
+  );
 
   const title = await pdf.getTitle();
   const author = await pdf.getAuthor();
@@ -101,8 +118,43 @@ export const processNewsletter = async (filePath: string) => {
       author,
       subject,
       keywords,
+      issueDate: date,
+      issueNumber,
     },
   };
+};
+
+const issueTextToIssueNumber = (issueText: string) => {
+  const issueNumber = issueText.split(' ')[1];
+  return safeParseInt(issueNumber);
+};
+
+/**
+ * Crops a canvas by a specified rectangle.
+ *
+ * @param {Canvas} sourceCanvas - The source canvas to crop from
+ * @param {Rect} cropRect - The rectangle defining the crop area
+ * @returns {Canvas} A new canvas containing the cropped area
+ */
+const cropCanvas = (sourceCanvas: Canvas, cropRect: Rect): Canvas => {
+  // Create a new canvas with the dimensions of the crop rectangle
+  const croppedCanvas = createCanvas(cropRect.width, cropRect.height);
+  const ctx = croppedCanvas.getContext('2d');
+
+  // Draw the cropped portion from the source canvas to the new canvas
+  ctx.drawImage(
+    sourceCanvas,
+    cropRect.x,
+    cropRect.y,
+    cropRect.width,
+    cropRect.height,
+    0,
+    0,
+    cropRect.width,
+    cropRect.height
+  );
+
+  return croppedCanvas;
 };
 
 /**
@@ -114,7 +166,7 @@ export const processNewsletter = async (filePath: string) => {
 const renderPageToImage = async (page: PDFPageProxy) => {
   // Scale the page to 2x for a higher quality image output
   const viewport = page.getViewport({ scale: 2.0 });
-  const canvas = Canvas.createCanvas(viewport.width, viewport.height);
+  const canvas = createCanvas(viewport.width, viewport.height);
   const context = canvas.getContext('2d');
 
   // Create a compatible render context
@@ -127,9 +179,9 @@ const renderPageToImage = async (page: PDFPageProxy) => {
     // Render the PDF page to the canvas
     await page.render(renderContext).promise;
 
-    // Convert the canvas content to a JPEG image buffer and return it
-    // return canvas.encode('jpeg', { quality: 0.95 });
-    return canvas.toBuffer('image/jpeg', 75);
+    const cropped = cropCanvas(canvas, COVER_IMAGE_RECT);
+
+    return cropped.toBuffer('image/jpeg', 75);
   } catch (error) {
     log.error('Error rendering PDF page:', error);
     throw error;
