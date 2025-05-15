@@ -1,4 +1,3 @@
-import { PDFDocument, PDFPage } from 'pdf-lib';
 import { createLog } from '@helpers/log';
 import { Glob } from 'bun';
 import path from 'node:path';
@@ -51,9 +50,7 @@ export const scanNewsletters = async () => {
 
 export const processNewsletter = async (filePath: string) => {
   const pdfBytes = await Bun.file(filePath).arrayBuffer();
-  const pdf = await PDFDocument.load(pdfBytes);
 
-  // --- TEXT EXTRACTION (pdf.js) ---
   const pdfDoc = await pdfjs.getDocument({ data: pdfBytes }).promise;
   const firstPage = await pdfDoc.getPage(1);
 
@@ -99,11 +96,6 @@ export const processNewsletter = async (filePath: string) => {
     imageBuffer
   );
 
-  const title = await pdf.getTitle();
-  const author = await pdf.getAuthor();
-  const subject = await pdf.getSubject();
-  const keywords = await pdf.getKeywords();
-
   // log.debug('pdf', { title, author, subject, keywords });
 
   return {
@@ -114,10 +106,6 @@ export const processNewsletter = async (filePath: string) => {
       description,
     },
     metadata: {
-      title,
-      author,
-      subject,
-      keywords,
       issueDate: date,
       issueNumber,
     },
@@ -181,7 +169,7 @@ const renderPageToImage = async (page: PDFPageProxy) => {
 
     const cropped = cropCanvas(canvas, COVER_IMAGE_RECT);
 
-    return cropped.toBuffer('image/jpeg', 75);
+    return cropped.toBuffer('image/jpeg', 60);
   } catch (error) {
     log.error('Error rendering PDF page:', error);
     throw error;
