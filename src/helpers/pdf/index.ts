@@ -12,44 +12,16 @@ import Canvas from '@napi-rs/canvas';
 // Set up Node.js environment for PDF.js
 const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
-// Configure PDF.js for Node.js environment
-// pdfjs.GlobalWorkerOptions.workerSrc = '';
-
-// Polyfill DOMMatrix for Node.js environment
-// if (typeof global.DOMMatrix === 'undefined') {
-//   interface DOMMatrixInit {
-//     a?: number;
-//     b?: number;
-//     c?: number;
-//     d?: number;
-//     e?: number;
-//     f?: number;
-//   }
-
-//   class DOMMatrixPolyfill implements DOMMatrixInit {
-//     a: number;
-//     b: number;
-//     c: number;
-//     d: number;
-//     e: number;
-//     f: number;
-
-//     constructor(init?: DOMMatrixInit) {
-//       this.a = init?.a ?? 1;
-//       this.b = init?.b ?? 0;
-//       this.c = init?.c ?? 0;
-//       this.d = init?.d ?? 1;
-//       this.e = init?.e ?? 0;
-//       this.f = init?.f ?? 0;
-//     }
-//   }
-
-//   global.DOMMatrix = DOMMatrixPolyfill as any;
-// }
-
 const log = createLog('pdf');
 
 const NEWSLETTERS_DIR = path.resolve(import.meta.dir, '../../../newsletter');
+
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export const scanNewsletters = async () => {
   log.debug('newsletters path is ', NEWSLETTERS_DIR);
@@ -58,8 +30,8 @@ export const scanNewsletters = async () => {
   const pdfFiles = entries.trim().split('\n');
 
   for await (const file of pdfFiles) {
-    log.debug(file);
-    processNewsletter(file);
+    const result = await processNewsletter(file);
+    log.debug('result', result);
   }
 
   // const newsletters = await Promise.all(files.map(async (file) => {
@@ -75,45 +47,55 @@ export const processNewsletter = async (filePath: string) => {
   // --- TEXT EXTRACTION (pdf.js) ---
   const pdfDoc = await pdfjs.getDocument({ data: pdfBytes }).promise;
   const firstPage = await pdfDoc.getPage(1);
-  const textContent = await firstPage.getTextContent();
-  const text = textContent.items
-    .map((item: TextItem | TextMarkedContent) =>
-      'str' in item ? item.str : ''
-    )
-    .join(' ');
 
-  // log.debug('text content', textContent);
+  const dateRect = {
+    x: 785,
+    y: 97,
+    width: 373,
+    height: 120,
+  };
+
+  const descriptionRect = {
+    x: 49,
+    y: 1540,
+    width: 1093,
+    height: 100,
+  };
+
+  const issueRect = {
+    x: 936,
+    y: 244,
+    width: 193,
+    height: 73,
+  };
+
+  const dateText = await getTextInRect(firstPage, dateRect);
+  const description = await getTextInRect(firstPage, descriptionRect);
+  const issueText = await getTextInRect(firstPage, issueRect);
+
+  // log.debug('dateText', dateText);
+  // log.debug('description', description);
+  // log.debug('issueText', issueText);
 
   const imageBuffer = await renderPageToImage(firstPage);
 
   // save the image buffer to a file
   await Bun.write(path.resolve(NEWSLETTERS_DIR, 'test.jpg'), imageBuffer);
 
-  // const firstPdfPage = pdf.getPages()[0];
-  // const imageObjects = firstPdfPage.node.Resources().lookup('XObject', {});
-
-  // log.debug('image objects', imageObjects.length);
-
-  // const firstPage: PDFPage = pages[0];
-
-  // const { width, height } = firstPage.getSize();
-
-  // Extract text from the first page
-  // const pdfData = await pdfParse(pdfBytes);
-  // const text = pdfData.text;
-
-  // log.debug('firstPage', { width, height });
-  // log.debug('text content', text);
-
   const title = await pdf.getTitle();
   const author = await pdf.getAuthor();
   const subject = await pdf.getSubject();
   const keywords = await pdf.getKeywords();
 
-  log.debug('pdf', { title, author, subject, keywords });
+  // log.debug('pdf', { title, author, subject, keywords });
 
   return {
-    text,
+    path: filePath,
+    text: {
+      date: dateText,
+      issue: issueText,
+      description,
+    },
     metadata: {
       title,
       author,
@@ -152,4 +134,66 @@ const renderPageToImage = async (page: PDFPageProxy) => {
     log.error('Error rendering PDF page:', error);
     throw error;
   }
+};
+
+const getTextInRect = async (page: PDFPageProxy, rect: Rect) => {
+  const textContent = await page.getTextContent();
+  const viewport = page.getViewport({ scale: 2.0 });
+
+  const pdfRectToPixelRect = (pdfRect: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }) => {
+    // Convert from PDF coordinates to pixel coordinates
+    const pixelX = pdfRect.x * viewport.scale;
+    const pixelY =
+      (viewport.height / viewport.scale - pdfRect.y) * viewport.scale;
+    const pixelWidth = pdfRect.width * viewport.scale;
+    const pixelHeight = pdfRect.height * viewport.scale;
+
+    return {
+      x: pixelX,
+      y: pixelY - pixelHeight,
+      width: pixelWidth,
+      height: pixelHeight,
+    };
+  };
+
+  const text = textContent.items
+    .filter((item: TextItem | TextMarkedContent) => {
+      if ('str' in item) {
+        // Get the text item's bounding box in PDF coordinates
+        const x = item.transform[4];
+        const y = item.transform[5];
+        const width = item.width || 0;
+        const height = item.height || 0;
+
+        if (height === 0) {
+          return false;
+        }
+
+        // Convert to pixel coordinates for debugging
+        const pixelRect = pdfRectToPixelRect({ x, y, width, height });
+        // Check if the text item is within the target rectangle
+        return rectIntersects(pixelRect, rect);
+      }
+      return false;
+    })
+    .map((item: TextItem | TextMarkedContent) =>
+      'str' in item ? item.str : ''
+    )
+    .join(' ');
+
+  return text;
+};
+
+const rectIntersects = (rect1: Rect, rect2: Rect) => {
+  return (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+  );
 };
