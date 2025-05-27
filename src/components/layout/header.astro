@@ -1,0 +1,23 @@
+---
+import { SITE_TITLE } from '@constants';
+
+import HeaderLink from './header-link.astro';
+
+const isDev = import.meta.env.DEV;
+---
+
+<header class="m-0 px-4 shadow-[0_2px_8px_rgba(var(--black),0.05)]">
+  <nav class="flex items-center justify-between">
+    <h2 class="m-0 text-base">
+      <a href="/" class="no-underline">{SITE_TITLE}</a>
+    </h2>
+    <div class="internal-links">
+      <HeaderLink href="/the-village">The Village</HeaderLink>
+      <HeaderLink href="/community-hall">Community Hall</HeaderLink>
+      <HeaderLink href="/village-voice">Village Voice</HeaderLink>
+      <HeaderLink href="/yeofest">Yeofest 14</HeaderLink>
+      <HeaderLink href="/contact">Contact</HeaderLink>
+    </div>
+    <div class="social-links hidden md:flex gap-2"></div>
+  </nav>
+</header>

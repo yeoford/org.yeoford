@@ -8,9 +8,9 @@
     "dist"
   ],
   "compilerOptions": {
-    "strictNullChecks": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
+    "module": "ESNext",
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -18,9 +18,6 @@
       ],
       "@constants": [
         "./src/constants.ts"
-      ],
-      "@layouts/*": [
-        "./src/layouts/*"
       ],
       "@components/*": [
         "./src/components/*"
@@ -30,6 +27,12 @@
       ],
       "@helpers/*": [
         "./src/helpers/*"
+      ],
+      "@images/*": [
+        "./src/images/*"
+      ],
+      "@layouts/*": [
+        "./src/layout/*"
       ],
       "@newsletter/*": [
         "./newsletter/*"

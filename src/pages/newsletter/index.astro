@@ -1,0 +1,26 @@
+---
+import { getPublishedNewsletters, sortEntriesByDate } from '@helpers/astro';
+
+const newsletters = await getPublishedNewsletters();
+
+const sortedNewsletters = sortEntriesByDate(newsletters);
+
+import Layout from '@layouts/main.astro';
+---
+
+<Layout>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Newsletters</h1>
+    <ul>
+      {
+        sortedNewsletters.map((newsletter) => (
+          <li>
+            <a href={`/newsletter/${newsletter.data.slug}`}>
+              Village Voice {newsletter.data.date.toLocaleDateString()}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Layout>
