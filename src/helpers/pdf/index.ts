@@ -164,7 +164,7 @@ export const processNewsletter = async (
           description,
           editorial: editorialText,
           issueNumber,
-          path: `/newsletter/${slug}.pdf`,
+          path: `/pdf/${slug}.pdf`,
           slug,
         },
         null,

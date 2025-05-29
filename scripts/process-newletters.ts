@@ -25,12 +25,7 @@ const outputDataDir = path.resolve(
   'newsletters'
 );
 
-const outputPdfDir = path.resolve(
-  import.meta.dir,
-  '..',
-  'public',
-  'newsletter'
-);
+const outputPdfDir = path.resolve(import.meta.dir, '..', 'public', 'pdf');
 
 log.info('outputImageDir', outputImageDir);
 log.info('outputDataDir', outputDataDir);

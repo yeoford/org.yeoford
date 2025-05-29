@@ -1,9 +1,5 @@
 ---
-import { getPublishedNewsletters, sortEntriesByDate } from '@helpers/astro';
-
-const newsletters = await getPublishedNewsletters();
-
-const sortedNewsletters = sortEntriesByDate(newsletters);
+import { getPublishedNewsletters } from '@helpers/astro';
 
 export const getStaticPaths = async () => {
   const newsletters = await getPublishedNewsletters();
@@ -15,10 +11,18 @@ export const getStaticPaths = async () => {
 };
 
 import Layout from '@layouts/main.astro';
+import { PdfViewer } from '@components/pdf-viewer';
+
+const newsletter = Astro.props;
 ---
 
 <Layout>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Newsletter</h1>
+    <h1 class="text-3xl font-bold mb-6">
+      Village Voice {newsletter.data.issueNumber}
+    </h1>
+    <div class="flex flex-col gap-4 h-screen">
+      <PdfViewer path={newsletter.data.path} client:only="react" />
+    </div>
   </div>
 </Layout>
