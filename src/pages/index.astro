@@ -10,12 +10,15 @@ import Layout from '@layouts/main.astro';
     <div class="fixed inset-0 bg-black/50 z-10"></div>
     <div
       class="fixed inset-0 bg-cover bg-center bg-no-repeat"
-      style={`background-image: url(${Countryside.src});`}>
+      style={`background-image: url(${Countryside.src});`}
+      transition:name="header-image-content">
     </div>
     <div class="relative z-20 min-h-screen flex items-center justify-center">
       <div
         class="container mx-auto px-4 flex flex-col items-center justify-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">
+        <h1
+          class="text-4xl md:text-5xl font-bold text-white mb-8"
+          transition:name="site-title">
           Yeoford Village
         </h1>
         <div class="mb-8 md:mb-16 flex flex-wrap justify-center gap-4">
@@ -24,7 +27,9 @@ import Layout from '@layouts/main.astro';
           <HeaderLink href="/village-voice">Village Voice</HeaderLink>
           <HeaderLink href="/contact">Contact</HeaderLink>
         </div>
-        <VVCards />
+        <div transition:name="main-content">
+          <VVCards />
+        </div>
       </div>
     </div>
   </div>

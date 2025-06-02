@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from 'astro:transitions';
+
 import BaseHead from '@components/layout/base-head.astro';
 import Footer from '@components/layout/footer.astro';
 import Header from '@components/layout/header.astro';
@@ -11,10 +13,12 @@ import Countryside from '@images/countryside.jpg';
 <html lang="en">
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <ClientRouter />
   </head>
   <body class="min-h-screen flex flex-col bg-emerald-500">
     <div
-      class="w-full aspect-[3/1] sm:aspect-[4/1] md:aspect-[5/2] lg:aspect-[16/5] relative max-h-[200px]">
+      class="w-full aspect-[3/1] sm:aspect-[4/1] md:aspect-[5/2] lg:aspect-[16/5] relative max-h-[200px]"
+      transition:name="header-image">
       <img
         src={Countryside.src}
         alt="Countryside"
@@ -22,10 +26,13 @@ import Countryside from '@images/countryside.jpg';
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
         loading="eager"
         decoding="async"
+        transition:name="header-image-content"
       />
       <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <a href="/" class="text-4xl md:text-4xl font-bold text-white"
-          ><h1>Yeoford Village</h1></a
+        <a
+          href="/"
+          class="text-4xl md:text-4xl font-bold text-white"
+          transition:name="site-title"><h1>Yeoford Village</h1></a
         >
         <div class="hidden md:block w-full">
           <Header />
@@ -37,7 +44,8 @@ import Countryside from '@images/countryside.jpg';
     </div>
     <main class="flex-grow">
       <div
-        class="container mx-auto px-4 md:px-16 bg-white/80 mt-10 rounded-lg py-8 pb-16">
+        class="container mx-auto px-4 md:px-16 bg-white/80 mt-10 rounded-lg py-8 pb-16"
+        transition:name="main-content">
         <slot />
       </div>
     </main>

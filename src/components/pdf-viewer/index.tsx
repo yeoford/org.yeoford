@@ -76,7 +76,7 @@ export const PdfViewer = ({ path }: { path: string }) => {
   // log.info('path', path);
 
   return (
-    <div className="flex h-full w-full flex-col items-center p-4">
+    <div className="flex w-full flex-col items-center p-4">
       {error && (
         <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-500">
           Error loading PDF: {error}

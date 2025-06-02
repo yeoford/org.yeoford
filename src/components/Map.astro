@@ -22,13 +22,31 @@ const {
 />
 
 <script define:vars={{ center, zoom }}>
-  // Wait for the DOM to be fully loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    const map = new maplibregl.Map({
+  let map = null;
+
+  function initMap() {
+    const container = document.getElementById('map');
+    if (!container) {
+      // If container doesn't exist yet, try again in a short while
+      setTimeout(initMap, 50);
+      return;
+    }
+
+    if (map) {
+      map.remove();
+    }
+
+    map = new maplibregl.Map({
       style: 'https://tiles.openfreemap.org/styles/liberty',
       center: center,
       zoom: zoom,
       container: 'map'
     });
-  });
+  }
+
+  // Initialize on first load
+  document.addEventListener('DOMContentLoaded', initMap);
+
+  // Handle view transitions
+  document.addEventListener('astro:after-swap', initMap);
 </script>

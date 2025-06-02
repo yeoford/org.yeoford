@@ -1,10 +1,12 @@
 // @ts-check
+import { resolve } from 'node:path';
+
 import { defineConfig } from 'astro/config';
-import tailwindcss from '@tailwindcss/vite';
+
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
-import { resolve } from 'node:path';
+import tailwindcss from '@tailwindcss/vite';
 
 const __filename = import.meta.filename;
 const __dirname = import.meta.dirname;
@@ -15,12 +17,14 @@ export default defineConfig({
 
   site: 'https://yeoford.org',
 
+  viewTransitions: true,
+
   vite: {
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        '@layouts': resolve(__dirname, './src/layout'),
-      },
-    },
-  },
+        '@layouts': resolve(__dirname, './src/layout')
+      }
+    }
+  }
 });
