@@ -1,0 +1,125 @@
+---
+import { getPublishedNewsletters, sortEntriesByDate } from '@helpers/astro';
+
+const newsletters = await getPublishedNewsletters();
+
+const sortedNewsletters = sortEntriesByDate(newsletters);
+
+import Layout from '@layouts/main.astro';
+---
+
+<Layout>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Contact</h1>
+
+    <div class="mb-4">
+      If you would like to find out more about the groups and events in the
+      village, or would like to book a facility contact us using the form.
+      Please fill in all of the sections:
+    </div>
+
+    <form id="contactForm" class="max-w-lg">
+      <div class="mb-4">
+        <label for="name" class="block text-lg font-medium mb-2"
+          >Your Name (required)</label
+        >
+        <input
+          type="text"
+          id="name"
+          name="name"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="email" class="block text-lg font-medium mb-2"
+          >Your Email (required)</label
+        >
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="subject" class="block text-lg font-medium mb-2"
+          >Subject (required)</label
+        >
+        <input
+          type="text"
+          id="subject"
+          name="subject"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="message" class="block text-lg font-medium mb-2"
+          >Message (required)</label
+        >
+        <textarea
+          id="message"
+          name="message"
+          required
+          rows="4"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        Send
+      </button>
+    </form>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('contactForm') as HTMLFormElement;
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nameInput = document.getElementById('name') as HTMLInputElement;
+      const emailInput = document.getElementById('email') as HTMLInputElement;
+      const subjectInput = document.getElementById(
+        'subject'
+      ) as HTMLInputElement;
+      const messageInput = document.getElementById(
+        'message'
+      ) as HTMLTextAreaElement;
+
+      if (nameInput && emailInput && subjectInput && messageInput) {
+        const name = nameInput.value;
+        const email = emailInput.value;
+        const subject = subjectInput.value;
+        const message = messageInput.value;
+
+        const mailtoBody = `Hello,
+
+My name is ${name}.
+My email is ${email}.
+
+Message:
+
+${message}
+
+---
+This email was pre-filled from the yeoford.org contact form.`;
+
+        const encodedBody = encodeURIComponent(mailtoBody);
+
+        const mailtoLink = `mailto:admin.hall@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodedBody}`;
+
+        window.location.href = mailtoLink;
+      }
+    });
+  }
+</script>
