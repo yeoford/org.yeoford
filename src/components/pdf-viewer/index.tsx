@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react';
+
 import { Document, Page, pdfjs } from 'react-pdf';
+
 import { createLog } from '@helpers/log';
 
 const log = createLog('PdfViewer');
 
-// Update worker configuration to use a more reliable CDN
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
-
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   'pdfjs-dist/legacy/build/pdf.worker.min.js',
-//   import.meta.url
-// ).toString();
 
 export const PdfViewer = ({ path }: { path: string }) => {
   const [numPages, setNumPages] = useState<number>();
@@ -24,17 +17,20 @@ export const PdfViewer = ({ path }: { path: string }) => {
   const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(maxWidth);
 
-  // log.info('path', path);
+  useEffect(() => {
+    if (!containerRef) {
+      return;
+    }
 
-  // const onResize = useCallback<ResizeObserverCallback>((entries) => {
-  //   const [entry] = entries;
+    const updateWidth = () => {
+      const width = Math.min(containerRef.clientWidth - 32, maxWidth); // 32px for padding
+      setContainerWidth(width);
+    };
 
-  //   if (entry) {
-  //     setContainerWidth(entry.contentRect.width);
-  //   }
-  // }, []);
-
-  // useResizeObserver(containerRef, resizeObserverOptions, onResize);
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [containerRef]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
     log.info('onDocumentLoadSuccess', { numPages });
@@ -50,11 +46,19 @@ export const PdfViewer = ({ path }: { path: string }) => {
   };
 
   const nextPage = () => {
-    setPageNumber((v) => v + 1);
+    setPageNumber(v => v + 1);
   };
 
   const prevPage = () => {
-    setPageNumber((v) => v - 1);
+    setPageNumber(v => v - 1);
+  };
+
+  const firstPage = () => {
+    setPageNumber(1);
+  };
+
+  const lastPage = () => {
+    setPageNumber(numPages ?? 1);
   };
 
   const onLoadError = (error: Error) => {
@@ -72,46 +76,65 @@ export const PdfViewer = ({ path }: { path: string }) => {
   // log.info('path', path);
 
   return (
-    <div className="flex flex-col items-center w-full h-full p-4">
+    <div className="flex h-full w-full flex-col items-center p-4">
       {error && (
-        <div className="text-red-500 mb-4 p-4 bg-red-50 rounded-lg">
+        <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-500">
           Error loading PDF: {error}
         </div>
       )}
       {loading && (
-        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+        <div className="mb-4 rounded-lg bg-gray-50 p-4">
           Loading PDF... (Worker: {pdfjs.version})
         </div>
       )}
-      <div className="flex gap-4 mb-4">
+      <div className="mb-4 flex gap-4">
         <button
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={pageNumber <= 1}
-          onClick={prevPage}>
+          onClick={firstPage}
+        >
+          First
+        </button>
+        <button
+          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          disabled={pageNumber <= 1}
+          onClick={prevPage}
+        >
           Previous
         </button>
         <button
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={pageNumber >= (numPages ?? -1)}
-          onClick={nextPage}>
+          onClick={nextPage}
+        >
           Next
         </button>
+        <button
+          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          disabled={pageNumber >= (numPages ?? -1)}
+          onClick={lastPage}
+        >
+          Last
+        </button>
       </div>
-      <div className="flex-1 w-full flex justify-center">
-        <Document
-          className="my-react-pdf"
-          file={path}
-          loading={null}
-          onError={onError}
-          onLoadError={onLoadError}
-          onLoadSuccess={onDocumentLoadSuccess}>
-          <Page
-            pageNumber={pageNumber}
-            renderAnnotationLayer={false}
-            renderTextLayer={false}
-            width={containerWidth}
-          />
-        </Document>
+      <div className="flex w-full flex-1 justify-center">
+        <div className="flex w-full justify-center" ref={setContainerRef}>
+          <Document
+            className="my-react-pdf"
+            file={path}
+            loading={null}
+            onError={onError}
+            onLoadError={onLoadError}
+            onLoadSuccess={onDocumentLoadSuccess}
+          >
+            <Page
+              pageNumber={pageNumber}
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+              width={containerWidth}
+            />
+          </Document>
+        </div>
       </div>
       <p className="mt-4 text-gray-600">
         Page {pageNumber} of {numPages}
