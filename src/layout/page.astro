@@ -4,8 +4,8 @@ import Footer from '@components/layout/footer.astro';
 import Header from '@components/layout/header.astro';
 import ThemeInit from '@components/theme/theme-init.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '@constants';
-
 import Tracker from '@components/layout/tracker.astro';
+import Countryside from '@images/countryside.jpg';
 ---
 
 <html lang="en">
@@ -13,6 +13,18 @@ import Tracker from '@components/layout/tracker.astro';
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body class="min-h-screen flex flex-col bg-emerald-500">
+    <div
+      class="w-full aspect-[3/1] sm:aspect-[4/1] md:aspect-[5/2] lg:aspect-[16/5] relative max-h-[200px]">
+      <img
+        src={Countryside.src}
+        alt="Countryside"
+        class="w-full h-full object-cover object-center max-h-[200px]"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+        loading="eager"
+        decoding="async"
+      />
+    </div>
+    <Header />
     <main class="flex-grow">
       <slot />
     </main>
