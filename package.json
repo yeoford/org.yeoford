@@ -5,6 +5,7 @@
   "scripts": {
     "astro": "astro",
     "build": "bunx --bun astro build",
+    "prebuild": "bun run process-newsletters",
     "dev": "bunx --bun astro dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -1,26 +1,46 @@
 ---
+import Map from '@components/Map.astro';
 import { getPublishedNewsletters, sortEntriesByDate } from '@helpers/astro';
+import Layout from '@layouts/page.astro';
 
 const newsletters = await getPublishedNewsletters();
 
 const sortedNewsletters = sortEntriesByDate(newsletters);
-
-import Layout from '@layouts/page.astro';
 ---
 
 <Layout>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">The Village</h1>
-    <ul>
-      {
-        sortedNewsletters.map((newsletter) => (
-          <li>
-            <a href={`/newsletter/${newsletter.data.slug}`}>
-              Village Voice {newsletter.data.date.toLocaleDateString()}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+  <h1 class="text-3xl font-bold mb-6">The Village</h1>
+  <div class="my-8">
+    <Map />
   </div>
+  <p>
+    Tucked away in rural Mid-Devon, Yeoford provides community groups and
+    regular events for both locals and visitors. With a school, village hall,
+    pub, church and recreation ground there is usually something going on.
+  </p>
+  <p>
+    Yeoford benefits from an hourly rail service to both Barnstaple and Exeter,
+    so it couldn't be easier to get here – just visit the <a
+      class="text-blue-500 underline"
+      href="https://www.gwr.com/plan-journey/stations-and-routes/yeoford"
+      >First Great Western</a
+    >
+    website for details of train times, or go to the <a
+      class="text-blue-500 underline"
+      href="http://greatscenicrailways.co.uk/great-days-out/rail-ale-trails/tarka-line-rail-ale-trail/"
+      >Rail Ale Trail</a
+    > site for details of the Tarka Line ale trail.
+  </p>
+
+  <h2 class="text-2xl font-bold mb-4 mt-12">Social Media</h2>
+
+  <p>
+    You can also keep up to date with us through our <a
+      class="text-blue-500 underline"
+      href="https://www.facebook.com/yeoford.villagevoice">Facebook group</a
+    >
+    and <a class="text-blue-500 underline" href="https://x.com/yeofest"
+      >Twitter</a
+    >.
+  </p>
 </Layout>

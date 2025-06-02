@@ -1,0 +1,34 @@
+---
+interface Props {
+  center?: [number, number];
+  zoom?: number;
+  height?: string;
+}
+
+const {
+  center = [-3.725, 50.776], // Default to Yeoford coordinates
+  zoom = 14,
+  height = '500px'
+} = Astro.props;
+---
+
+<div id="map" style={`width: 100%; height: ${height}; border-radius: 8px;`}>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+<link
+  href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"
+  rel="stylesheet"
+/>
+
+<script define:vars={{ center, zoom }}>
+  // Wait for the DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    const map = new maplibregl.Map({
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: center,
+      zoom: zoom,
+      container: 'map'
+    });
+  });
+</script>

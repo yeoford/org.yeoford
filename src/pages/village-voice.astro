@@ -1,28 +1,24 @@
 ---
+import Card from '@components/vv-card.astro';
 import { getPublishedNewsletters, sortEntriesByDate } from '@helpers/astro';
+import Layout from '@layouts/page.astro';
 
 const newsletters = await getPublishedNewsletters();
-
 const sortedNewsletters = sortEntriesByDate(newsletters);
-
-import Layout from '@layouts/page.astro';
-import Card from '@components/Card.astro';
 ---
 
 <Layout>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Village Voice</h1>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {
-        sortedNewsletters.map((newsletter) => (
-          <Card
-            title={`Village Voice - ${newsletter.data.date.toLocaleString('en-GB', { month: 'long', year: 'numeric' })}`}
-            image={`/images/newsletters/${newsletter.data.slug}-cover.jpg`}
-            description={newsletter.data.description ?? ''}
-            link={`/newsletter/${newsletter.data.slug}`}
-          />
-        ))
-      }
-    </div>
+  <h1 class="text-3xl font-bold mb-6">Village Voice</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    {
+      sortedNewsletters.map(newsletter => (
+        <Card
+          title={`Village Voice - ${newsletter.data.date.toLocaleString('en-GB', { month: 'long', year: 'numeric' })}`}
+          image={`/images/newsletters/${newsletter.data.slug}-cover.jpg`}
+          description={newsletter.data.description ?? ''}
+          link={`/newsletter/${newsletter.data.slug}`}
+        />
+      ))
+    }
   </div>
 </Layout>

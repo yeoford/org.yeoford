@@ -1,17 +1,16 @@
 ---
+import { PdfViewer } from '@components/pdf-viewer';
 import { getPublishedNewsletters } from '@helpers/astro';
+import Layout from '@layouts/page.astro';
 
 export const getStaticPaths = async () => {
   const newsletters = await getPublishedNewsletters();
 
-  return newsletters.map((newsletter) => ({
+  return newsletters.map(newsletter => ({
     params: { slug: newsletter.data.slug },
-    props: newsletter,
+    props: newsletter
   }));
 };
-
-import Layout from '@layouts/main.astro';
-import { PdfViewer } from '@components/pdf-viewer';
 
 const newsletter = Astro.props;
 ---

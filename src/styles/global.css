@@ -1,2 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+
+
+
+h1 {
+  font-size    : 2rem;
+  font-weight  : 700;
+  margin-bottom: 1rem;
+  font-family  : 'Roboto Slab', serif;
+}
+
+h2 {
+  font-size    : 1.5rem;
+  font-weight  : 700;
+  margin-bottom: 1rem;
+  font-family  : 'Roboto Slab', serif;
+}
+
+p {
+  font-size    : 1.1rem;
+  font-family  : 'Roboto', sans-serif;
+  margin-bottom: 1rem;
+}

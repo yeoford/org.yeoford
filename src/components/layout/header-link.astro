@@ -7,13 +7,15 @@ const { href, class: className, ...props } = Astro.props;
 const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
 const subpath = pathname.match(/[^\/]+/g);
 const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+
+console.debug(subpath, 'is active', { isActive });
 ---
 
 <a
   href={href}
   class:list={[
-    'inline-block py-4 px-2 no-underline border-b-4 border-transparent',
-    { 'font-bold underline border-accent': isActive },
+    'inline-block py-2 px-2 no-underline border-b-4 border-transparent text-white/60 text-xl hover:text-white transition-colors w-full md:w-auto text-center',
+    { 'font-bold !text-white border-accent': isActive },
     className
   ]}
   {...props}>
