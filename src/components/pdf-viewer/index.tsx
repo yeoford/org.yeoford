@@ -89,28 +89,28 @@ export const PdfViewer = ({ path }: { path: string }) => {
       )}
       <div className="mb-4 flex gap-4">
         <button
-          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={pageNumber <= 1}
           onClick={firstPage}
         >
           First
         </button>
         <button
-          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={pageNumber <= 1}
           onClick={prevPage}
         >
           Previous
         </button>
         <button
-          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={pageNumber >= (numPages ?? -1)}
           onClick={nextPage}
         >
           Next
         </button>
         <button
-          className="rounded bg-blue-500 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={pageNumber >= (numPages ?? -1)}
           onClick={lastPage}
         >
