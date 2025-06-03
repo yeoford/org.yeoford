@@ -12,31 +12,60 @@ const {
 } = Astro.props;
 ---
 
-<div id="map" style={`width: 100%; height: ${height}; border-radius: 8px;`}>
+<div
+  id="map"
+  style={`width: 100%; height: ${height}; border-radius: 8px;`}
+  transition:name="map">
 </div>
-
-<script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
-<link
-  href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"
-  rel="stylesheet"
-/>
 
 <script define:vars={{ center, zoom }}>
   let map = null;
 
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src='${src}']`)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  function loadCSS(href) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`link[href='${href}']`)) {
+        resolve();
+        return;
+      }
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.onload = resolve;
+      link.onerror = reject;
+      document.head.appendChild(link);
+    });
+  }
+
+  async function initMapWithLib() {
+    await loadCSS('https://unpkg.com/maplibre-gl/dist/maplibre-gl.css');
+    await loadScript('https://unpkg.com/maplibre-gl/dist/maplibre-gl.js');
+    initMap();
+  }
+
   function initMap() {
     const container = document.getElementById('map');
     if (!container) {
-      // If container doesn't exist yet, try again in a short while
       setTimeout(initMap, 50);
       return;
     }
-
     if (map) {
       map.remove();
     }
-
-    map = new maplibregl.Map({
+    map = new window.maplibregl.Map({
       style: 'https://tiles.openfreemap.org/styles/liberty',
       center: center,
       zoom: zoom,
@@ -44,9 +73,6 @@ const {
     });
   }
 
-  // Initialize on first load
-  document.addEventListener('DOMContentLoaded', initMap);
-
-  // Handle view transitions
-  document.addEventListener('astro:after-swap', initMap);
+  initMapWithLib();
+  document.addEventListener('astro:after-swap', initMapWithLib);
 </script>

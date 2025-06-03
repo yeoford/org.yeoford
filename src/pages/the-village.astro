@@ -1,17 +1,12 @@
 ---
 import Map from '@components/Map.astro';
-import { getPublishedNewsletters, sortEntriesByDate } from '@helpers/astro';
 import Layout from '@layouts/page.astro';
-
-const newsletters = await getPublishedNewsletters();
-
-const sortedNewsletters = sortEntriesByDate(newsletters);
 ---
 
 <Layout>
   <h1 class="text-3xl font-bold mb-6">The Village</h1>
   <div class="my-8">
-    <Map />
+    <Map client:load />
   </div>
   <p>
     Tucked away in rural Mid-Devon, Yeoford provides community groups and
