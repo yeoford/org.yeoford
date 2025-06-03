@@ -17,8 +17,6 @@ export default defineConfig({
 
   site: 'https://yeoford.org',
 
-  viewTransitions: true,
-
   vite: {
     plugins: [tailwindcss()],
     resolve: {

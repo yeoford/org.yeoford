@@ -1,6 +1,6 @@
 export const SITE_TITLE = 'Yeoford';
 export const SITE_DESCRIPTION =
-  'A newsletter about the latest noodlings and meandering thoughts.';
+  'Yeoford is a small village in Mid-Devon, England.';
 export const SITE_URL = 'https://yeoford.org';
 export const SITE_AUTHOR = 'The people of Yeoford';
 export const SITE_LOCALE = 'en-GB';
